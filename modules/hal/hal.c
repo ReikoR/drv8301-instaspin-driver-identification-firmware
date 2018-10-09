@@ -549,7 +549,7 @@ void HAL_enablePwmInt(HAL_Handle handle)
 
 void HAL_setupFaults(HAL_Handle handle)
 {
-  HAL_Obj *obj = (HAL_Obj *)handle;
+  /*HAL_Obj *obj = (HAL_Obj *)handle;
   uint_least8_t cnt;
 
 
@@ -571,7 +571,7 @@ void HAL_setupFaults(HAL_Handle handle)
 
       PWM_setTripZoneState_TZA(obj->pwmHandle[cnt],PWM_TripZoneState_EPWM_Low);
       PWM_setTripZoneState_TZB(obj->pwmHandle[cnt],PWM_TripZoneState_EPWM_Low);
-    }
+    }*/
 
   return;
 } // end of HAL_setupFaults() function
@@ -856,11 +856,11 @@ void HAL_setupAdcs(HAL_Handle handle)
 
   //configure the SOCs for drv8301nxfet_revB
   // sample the first sample twice due to errata sprz342f
-  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_0,ADC_SocChanNumber_B1);
+  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_0,ADC_SocChanNumber_B7);
   ADC_setSocTrigSrc(obj->adcHandle,ADC_SocNumber_0,ADC_SocTrigSrc_EPWM1_ADCSOCA);
   ADC_setSocSampleDelay(obj->adcHandle,ADC_SocNumber_0,ADC_SocSampleDelay_7_cycles);
 
-  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_1,ADC_SocChanNumber_B1);
+  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_1,ADC_SocChanNumber_B7);
   ADC_setSocTrigSrc(obj->adcHandle,ADC_SocNumber_1,ADC_SocTrigSrc_EPWM1_ADCSOCA);
   ADC_setSocSampleDelay(obj->adcHandle,ADC_SocNumber_1,ADC_SocSampleDelay_7_cycles);
 
@@ -868,7 +868,7 @@ void HAL_setupAdcs(HAL_Handle handle)
   ADC_setSocTrigSrc(obj->adcHandle,ADC_SocNumber_2,ADC_SocTrigSrc_EPWM1_ADCSOCA);
   ADC_setSocSampleDelay(obj->adcHandle,ADC_SocNumber_2,ADC_SocSampleDelay_7_cycles);
 
-  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_3,ADC_SocChanNumber_B7);
+  ADC_setSocChanNumber(obj->adcHandle,ADC_SocNumber_3,ADC_SocChanNumber_B1);
   ADC_setSocTrigSrc(obj->adcHandle,ADC_SocNumber_3,ADC_SocTrigSrc_EPWM1_ADCSOCA);
   ADC_setSocSampleDelay(obj->adcHandle,ADC_SocNumber_3,ADC_SocSampleDelay_7_cycles);
 
@@ -957,7 +957,6 @@ void HAL_setupGpios(HAL_Handle handle)
 {
   HAL_Obj *obj = (HAL_Obj *)handle;
 
-
   // PWM1
   GPIO_setMode(obj->gpioHandle,GPIO_Number_0,GPIO_0_Mode_EPWM1A);
 
@@ -984,10 +983,10 @@ void HAL_setupGpios(HAL_Handle handle)
   // DC_CAL
   GPIO_setMode(obj->gpioHandle,GPIO_Number_7,GPIO_7_Mode_GeneralPurpose);
 
-  // No Connection
+  // RE RS485
   GPIO_setMode(obj->gpioHandle,GPIO_Number_12,GPIO_12_Mode_GeneralPurpose);
-  GPIO_setDirection(obj->gpioHandle,GPIO_Number_12,GPIO_Direction_Input);
-  GPIO_setPullUp(obj->gpioHandle,GPIO_Number_12,GPIO_PullUp_Disable);
+  GPIO_setDirection(obj->gpioHandle,GPIO_Number_12,GPIO_Direction_Output);
+  GPIO_setLow(obj->gpioHandle,GPIO_Number_12);
 
   // SPI_SDI if JP4 is soldered, No Connection if JP4 is not soldered
   GPIO_setMode(obj->gpioHandle,GPIO_Number_16,GPIO_16_Mode_SPISIMOA);
@@ -1001,20 +1000,25 @@ void HAL_setupGpios(HAL_Handle handle)
   // SPI_SCS
   GPIO_setMode(obj->gpioHandle,GPIO_Number_19,GPIO_19_Mode_SPISTEA_NOT);
 
+  // RX
+  GPIO_setPullUp(obj->gpioHandle, GPIO_Number_28, GPIO_PullUp_Enable);
+  GPIO_setQualification(obj->gpioHandle, GPIO_Number_28, GPIO_Qual_ASync);
+  GPIO_setMode(obj->gpioHandle,GPIO_Number_28,GPIO_28_Mode_SCIRXDA);
+
+  // TX
+  GPIO_setPullUp(obj->gpioHandle, GPIO_Number_29, GPIO_PullUp_Enable);
+  GPIO_setMode(obj->gpioHandle,GPIO_Number_29,GPIO_29_Mode_SCITXDA);
+
   // FAULTn
-  GPIO_setMode(obj->gpioHandle,GPIO_Number_28,GPIO_28_Mode_TZ2_NOT);
-
-  // OCTWn
-  GPIO_setMode(obj->gpioHandle,GPIO_Number_29,GPIO_29_Mode_TZ3_NOT);
-
-  // SPI_SDI if JP5 is soldered, No Connection if JP5 is not soldered
   GPIO_setMode(obj->gpioHandle,GPIO_Number_32,GPIO_32_Mode_GeneralPurpose);
 
-  // SPI_SDO if JP7 is soldered, No Connection if JP7 is not soldered
+  // OCTWn
   GPIO_setMode(obj->gpioHandle,GPIO_Number_33,GPIO_33_Mode_GeneralPurpose);
 
-  // No Connection
+  // SCS2
   GPIO_setMode(obj->gpioHandle,GPIO_Number_34,GPIO_34_Mode_GeneralPurpose);
+  GPIO_setDirection(obj->gpioHandle,GPIO_Number_34,GPIO_Direction_Output);
+  GPIO_setLow(obj->gpioHandle,GPIO_Number_34);
 
   // JTAG
   GPIO_setMode(obj->gpioHandle,GPIO_Number_35,GPIO_35_Mode_JTAG_TDI);
